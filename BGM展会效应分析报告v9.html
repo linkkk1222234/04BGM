@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BGM 2026广州站 | 独立游戏展会效应分析报告</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --gold: #a8793a;
+            --gold-light: #c9a96e;
+            --gold-dim: rgba(168,121,58,0.08);
+            --bg: #f7f5f2;
+            --card: #ffffff;
+            --border: rgba(0,0,0,0.08);
+            --text-primary: #1a1814;
+            --text-secondary: #6b6560;
+            --green: #16a34a;
+            --red: #dc2626;
+            --blue: #2563eb;
+            --radius: 14px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Noto Sans SC", "PingFang SC", sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+
+        /* ── Layout ── */
+        .wrap {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            position: relative;
+            padding: 60px 0 40px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 48px;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 340px; height: 340px;
+            background: radial-gradient(circle, rgba(168,121,58,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--gold-dim);
+            border: 1px solid rgba(168,121,58,0.25);
+            color: var(--gold);
+            font-size: 12px;
+            padding: 5px 14px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+            letter-spacing: 0.03em;
+        }
+        .hero-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+        .hero h1 {
+            font-family: "Noto Serif SC", serif;
+            font-size: clamp(26px, 5vw, 44px);
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 12px;
+        }
+        .hero h1 em {
+            font-style: normal;
+            color: var(--gold);
+        }
+        .hero-sub {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        .hero-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .hero-tag {
+            font-size: 12px;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: var(--card);
+        }
+
+        /* ── Section ── */
+        .section { margin-bottom: 48px; }
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .section-head h2 {
+            font-family: "Noto Serif SC", serif;
+            font-size: 18px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .section-head .dot {
+            width: 8px; height: 8px;
+            background: var(--gold);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            position: relative;
+            overflow: hidden;
+        }
+        .card + .card { margin-top: 14px; }
+        .card-top {
+            position: absolute;
+            top: 0; left: 24px;
+            width: 40px; height: 2px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            border-radius: 0 0 2px 2px;
+        }
+
+        /* ── Grid ── */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+        @media (max-width: 640px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        /* ── Insight cards ── */
+        .insight-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+        .insight-card h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+        .insight-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.85;
+        }
+        .insight-card p strong, .insight-card p .hl {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* ── Stat block ── */
+        .stat-block {
+            background: #f0ede8;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-val {
+            font-family: "Noto Serif SC", serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1.2;
+        }
+        .stat-lbl {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            letter-spacing: 0.02em;
+        }
+
+        /* ── Overview card header ── */
+        .ov-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 14px;
+        }
+        .ov-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .ov-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .ov-icon-gold { background: linear-gradient(135deg, #c9a96e, #f4d58d); }
+        .ov-icon-blue { background: linear-gradient(135deg, #2563eb, #93c5fd); }
+        .ov-icon-purple { background: linear-gradient(135deg, #9333ea, #d8b4fe); }
+        .ov-icon-green { background: linear-gradient(135deg, #16a34a, #86efac); }
+        .ov-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .ov-sub {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* two-col list */
+        .two-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 500px) {
+            .two-list { grid-template-columns: 1fr; gap: 12px; }
+        }
+        .two-list h4 {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+        .two-list ul { list-style: none; }
+        .two-list li {
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .two-list li:last-child { border-bottom: none; }
+        .two-list li strong { color: var(--text-primary); }
+        .num-tag {
+            font-size: 11px;
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── Chart container ── */
+        .chart-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            margin-bottom: 14px;
+        }
+        .chart-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 18px;
+            letter-spacing: 0.02em;
+        }
+        .chart-title strong { color: var(--text-primary); }
+
+        /* ── Category block ── */
+        .cat-block {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .cat-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .cat-head h3 { font-size: 15px; color: var(--text-primary); }
+        .cat-head span { font-size: 11px; color: var(--text-secondary); display: block; margin-top: 2px; }
+
+        /* ── Table ── */
+        .tbl-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 480px;
+        }
+        thead th {
+            background: #f0ede8;
+            color: var(--text-secondary);
+            padding: 11px 14px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 11px;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+        }
+        tbody td {
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: #faf9f7; }
+        .g { color: var(--green) !important; font-weight: 600; }
+        .r { color: var(--red) !important; }
+        .b { color: var(--blue) !important; }
+
+        /* ── Badge ── */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .b-gold { background: rgba(201,169,110,0.15); color: var(--gold); }
+        .b-green { background: rgba(74,222,128,0.1); color: var(--green); }
+        .b-blue { background: rgba(96,165,250,0.1); color: var(--blue); }
+        .b-purple { background: rgba(167,139,250,0.1); color: #a78bfa; }
+        .b-red { background: rgba(248,113,113,0.1); color: var(--red); }
+        .b-gray { background: rgba(255,255,255,0.06); color: var(--text-secondary); }
+
+        /* ── Formula block ── */
+        .formula {
+            background: rgba(168,121,58,0.06);
+            border: 1px solid rgba(168,121,58,0.18);
+            border-radius: 10px;
+            padding: 16px 18px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 2.2;
+        }
+        .formula .f-line { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+        .formula .f-key { color: var(--gold); font-weight: 600; min-width: 90px; }
+        .formula .f-eq { color: var(--text-secondary); }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 32px 0 0;
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 2;
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp 0.55s ease both; }
+        .delay-1 { animation-delay: 0.08s; }
+        .delay-2 { animation-delay: 0.16s; }
+        .delay-3 { animation-delay: 0.24s; }
+
+        /* ── Scroll hint for tables on mobile ── */
+        .tbl-hint {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-align: right;
+            margin-bottom: 6px;
+            display: none;
+        }
+        @media (max-width: 640px) {
+            .tbl-hint { display: block; }
+        }
+
+        /* ── Responsive extras ── */
+        @media (max-width: 640px) {
+            .wrap { padding: 0 14px 48px; }
+            .hero { padding: 36px 0 28px; }
+            .stat-val { font-size: 22px; }
+            .section { margin-bottom: 36px; }
+            .chart-wrap, .cat-block, .ov-card { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <!-- ── HERO ── -->
+    <div class="hero fade-up">
+        <div class="hero-chip">BGM 2026 · 广州健康方舟 · 4月18–19日</div>
+        <h1>独立游戏<em>展会效应</em>分析报告</h1>
+        <p class="hero-sub">基于 Steam 愿望单 / 销量数据的时间序列分析 &nbsp;·&nbsp; 数据周期 4月15日 – 19日</p>
+        <div class="hero-tags">
+            <span class="hero-tag">55款参展游戏</span>
+            <span class="hero-tag">42款未发售</span>
+            <span class="hero-tag">13款已发售</span>
+            <span class="hero-tag">展前 vs 展期增速对比</span>
+        </div>
+    </div>
+
+    <!-- ── 深度洞察 ── -->
+    <div class="section fade-up delay-1">
+        <div class="section-head">
+            <div class="dot"></div>
+            <h2>深度洞察</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="grid-2">
+            <div class="insight-card">
+                <h4>🌟 发现1：头部声量高，长尾需把控</h4>
+                <p>成功邀请到<strong>无限机兵（54w+销量）</strong>、<strong>华夏史诗：战国（7w愿望单）</strong>等重磅产品，但40+未发售独游中<strong>中位愿望单仅2400+</strong>，后续需有意识把控长尾产品的数量占比与质量。</p>
+            </div>
+            <div class="insight-card">
+                <h4>🔔 发现2：已发售游戏销量刺激效果微弱</h4>
+                <p>4.15–4.19期间，参展的10+已发售游戏大多处于<strong>停滞/缓增状态</strong>。天选花园、烤串师傅、风水喵将等近期产品未见增长，需<strong>针对性加强展会对已售产品的销量刺激</strong>。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── 分析方法 ── -->
+    <div class="section fade-up delay-2">
+        <div class="section-head">
+            <div class="dot"></div>
+            <h2>分析方法</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="grid-2">
+            <div class="insight-card">
+                <h4>📐 计算公式（复利公式）</h4>
+                <div class="formula">
+                    <div class="f-line"><span class="f-key">展前日均增速</span><span class="f-eq">= (4.17数值 / 4.15数值)^½ − 1</span></div>
+                    <div class="f-line"><span class="f-key">展期日均增速</span><span class="f-eq">= (4.19数值 / 4.17数值)^½ − 1</span></div>
+                    <div class="f-line"><span class="f-key">展会带动效应</span><span class="f-eq">= 展期日均 − 展前日均</span></div>
+                </div>
+            </div>
+            <div class="insight-card">
+                <h4>🎯 解读逻辑</h4>
+                <p>若展期日均增速<strong>高于</strong>展前日均增速，说明展会带来了<strong>正向拉动</strong>。<br><br>效应值为正 → 增速加快 → 展会可能有带动作用。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── 数据概览 ── -->
+    <div class="section fade-up delay-3">
+        <div class="section-head">
+            <div class="dot"></div>
+            <h2>数据概览</h2>
+            <div class="section-line"></div>
+        </div>
+
+        <!-- 1.1 参展游戏概况 -->
+        <div class="ov-card">
+            <div class="ov-head">
+                <div class="ov-icon ov-icon-gold">⭐</div>
+                <div>
+                    <div class="ov-label">1.1 参展游戏概况</div>
+                    <div class="ov-sub">已发售与未发售产品分布</div>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="stat-block">
+                    <div class="stat-val">42</div>
+                    <div class="stat-lbl">未发售新品（约76%）</div>
+                </div>
+                <div class="stat-block">
+                    <div class="stat-val">13</div>
+                    <div class="stat-lbl">已发售产品（约24%）</div>
+                </div>
+            </div>
+            <p style="font-size:12px;color:var(--text-secondary);margin-top:14px;line-height:1.8;">
+                2026年4月广州BGM站共吸引 <strong style="color:var(--text-primary)">60+独立游戏参展</strong>，排除内部产品及无公开信息产品后剩余 <strong style="color:var(--text-primary)">55款</strong>。
+            </p>
+        </div>
+
+        <!-- 1.2 头部产品 -->
+        <div class="ov-card">
+            <div class="ov-head">
+                <div class="ov-icon ov-icon-blue">📊</div>
+                <div>
+                    <div class="ov-label">1.2 参展头部产品（截至4.19）</div>
+                </div>
+            </div>
+            <div class="two-list">
+                <div>
+                    <h4>已发售销量 TOP3</h4>
+                    <ul>
+                        <li><strong>无限机兵</strong><span class="num-tag">543,272</span></li>
+                        <li><strong>咖啡星矿工</strong><span class="num-tag">137,713</span></li>
+                        <li><strong>OPUS：心相吾山</strong><span class="num-tag">42,682</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>未发售愿望单 TOP3</h4>
+                    <ul>
+                        <li><strong>薛定谔的电话</strong><span class="num-tag">93,352</span></li>
+                        <li><strong>华夏史诗：战国</strong><span class="num-tag">69,595</span></li>
+                        <li><strong>造化仙缘</strong><span class="num-tag">59,993</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1.3 绝对增长 -->
+        <div class="ov-card">
+            <div class="ov-head">
+                <div class="ov-icon ov-icon-purple">▲</div>
+                <div>
+                    <div class="ov-label">1.3 展会期绝对增长 TOP3</div>
+                    <div class="ov-sub">4.19数值 − 4.17数值</div>
+                </div>
+            </div>
+            <div class="two-list">
+                <div>
+                    <h4>销量增长 TOP3</h4>
+                    <ul>
+                        <li><strong>颈椎病</strong><span class="num-tag">+680（3.54%）</span></li>
+                        <li><strong>无限机兵</strong><span class="num-tag">+432（0.08%）</span></li>
+                        <li><strong>咖啡星矿工</strong><span class="num-tag">+123（0.09%）</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>愿望单增长 TOP3</h4>
+                    <ul>
+                        <li><strong>指尖农场</strong><span class="num-tag">+2,756（5.77%）</span></li>
+                        <li><strong>地心工业线</strong><span class="num-tag">+1,055（5.97%）</span></li>
+                        <li><strong>华夏史诗：战国</strong><span class="num-tag">+659（0.96%）</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1.4 拉动效果 -->
+        <div class="ov-card">
+            <div class="ov-head">
+                <div class="ov-icon ov-icon-green">📈</div>
+                <div>
+                    <div class="ov-label">1.4 展会拉动效果 TOP3</div>
+                    <div class="ov-sub">展期日均增速 − 展前日均增速</div>
+                </div>
+            </div>
+            <div class="two-list">
+                <div>
+                    <h4>销量拉动 TOP3</h4>
+                    <ul>
+                        <li><strong>小熊牌屋</strong><span class="num-tag">0→0.40%（+0.40%）</span></li>
+                        <li><strong>卡牌修仙传</strong><span class="num-tag">0.03→0.05%（+0.02%）</span></li>
+                        <li><strong>天选花园</strong><span class="num-tag">0→0.02%（+0.02%）</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>愿望单拉动 TOP3</h4>
+                    <ul>
+                        <li><strong>深度求财</strong><span class="num-tag">15.47→29.10%（+13.63%）</span></li>
+                        <li><strong>边界 Lines</strong><span class="num-tag">0→4.45%（+4.45%）</span></li>
+                        <li><strong>仙骰诡道</strong><span class="num-tag">9.71→13.76%（+4.05%）</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── 未发售游戏分析 ── -->
+    <div class="section">
+        <div class="section-head">
+            <div class="dot"></div>
+            <h2>未发售游戏 — 愿望单分析</h2>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="cat-block">
+            <div class="cat-head">
+                <div class="ov-icon ov-icon-gold" style="width:36px;height:36px;font-size:16px;">⭐</div>
+                <div>
+                    <h3>未发售游戏愿望单数据</h3>
+                    <span>共42款游戏，监测展会期间Steam愿望单变化</span>
+                </div>
+            </div>
+            <div class="grid-3">
+                <div class="stat-block">
+                    <div class="stat-val">2,436</div>
+                    <div class="stat-lbl">中位愿望单</div>
+                </div>
+                <div class="stat-block">
+                    <div class="stat-val">12,987</div>
+                    <div class="stat-lbl">平均愿望单</div>
+                </div>
+                <div class="stat-block">
+                    <div class="stat-val">93,352</div>
+                    <div class="stat-lbl">最高（薛定谔的电话）</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 1: 未发售效应 -->
+        <div class="chart-wrap">
+            <div class="chart-title"><strong>展会带动效应 TOP10</strong>（按效应从高到低，双Y轴）</div>
+            <canvas id="effectChartUnsold" height="200"></canvas>
+        </div>
+
+        <!-- Table: 未发售绝对增长 -->
+        <div class="chart-wrap">
+            <div class="chart-title"><strong>展会期绝对增长量 TOP10</strong></div>
+            <p class="tbl-hint">← 左右滑动查看完整数据 →</p>
+            <div class="tbl-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>游戏</th>
+                            <th>4.17愿望单</th>
+                            <th>4.19愿望单</th>
+                            <th>增长量</th>
+                            <th>计划发售</th>
+                            <th>玩法标签</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>指尖农场</td><td>47,789</td><td>50,545</td><td class="g">+2,756</td><td>即将宣布</td><td>休闲 挂机 农场模拟</td></tr>
+                        <tr><td>地心工业线</td><td>17,670</td><td>18,725</td><td class="g">+1,055</td><td>即将宣布</td><td>挖矿+升级+工厂建造</td></tr>
+                        <tr><td>华夏史诗：战国</td><td>68,936</td><td>69,595</td><td class="g">+659</td><td>即将宣布</td><td>动作模拟沙盒</td></tr>
+                        <tr><td>科恩1939</td><td>1,994</td><td>2,593</td><td class="g">+599</td><td>即将宣布</td><td>俯视角射击，动作</td></tr>
+                        <tr><td>重生修仙</td><td>7,507</td><td>7,953</td><td class="g">+446</td><td>Q3 2026</td><td>仙侠肉鸽+背包构筑</td></tr>
+                        <tr><td>天祝我也</td><td>48,379</td><td>48,662</td><td class="g">+283</td><td>2026年内</td><td>试玩</td></tr>
+                        <tr><td>欢迎来到魔王城</td><td>8,467</td><td>8,705</td><td class="g">+238</td><td>即将宣布</td><td>策略养成&二次元</td></tr>
+                        <tr><td>中国式地雷女</td><td>3,784</td><td>3,983</td><td class="g">+199</td><td>2026年内</td><td>恋爱Galgame</td></tr>
+                        <tr><td>薛定谔的电话</td><td>93,156</td><td>93,352</td><td class="g">+196</td><td>2026年Q2</td><td>视觉小说</td></tr>
+                        <tr><td>造化仙缘</td><td>59,865</td><td>59,993</td><td class="g">+128</td><td>即将宣布</td><td>角色扮演，开放世界，修仙模拟</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── 已发售游戏分析 ── -->
+    <div class="section">
+        <div class="section-head">
+            <div class="dot"></div>
+            <h2>已发售游戏 — 销量分析</h2>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="cat-block">
+            <div class="cat-head">
+                <div class="ov-icon ov-icon-green" style="width:36px;height:36px;font-size:16px;">🎮</div>
+                <div>
+                    <h3>已发售游戏销量数据</h3>
+                    <span>共13款游戏，监测展会期间Steam销量变化</span>
+                </div>
+            </div>
+            <div class="grid-3">
+                <div class="stat-block">
+                    <div class="stat-val">7,142</div>
+                    <div class="stat-lbl">中位销量</div>
+                </div>
+                <div class="stat-block">
+                    <div class="stat-val">55,391</div>
+                    <div class="stat-lbl">平均销量</div>
+                </div>
+                <div class="stat-block">
+                    <div class="stat-val">543,272</div>
+                    <div class="stat-lbl">最高（无限机兵）</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 2: 已发售效应 -->
+        <div class="chart-wrap">
+            <div class="chart-title"><strong>展会带动效应排名</strong>（已发售游戏）</div>
+            <canvas id="effectChartSold" height="180"></canvas>
+        </div>
+
+        <!-- Table: 已发售详细 -->
+        <div class="chart-wrap">
+            <div class="chart-title"><strong>已发售游戏详细数据</strong></div>
+            <p class="tbl-hint">← 左右滑动查看完整数据 →</p>
+            <div class="tbl-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>游戏</th>
+                            <th>4.15</th>
+                            <th>4.17</th>
+                            <th>4.19</th>
+                            <th>增长量</th>
+                            <th>展前日均</th>
+                            <th>展期日均</th>
+                            <th>带动效应</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge b-red">颈椎病</span></td>
+                            <td>18,453</td><td>19,219</td><td>19,899</td>
+                            <td class="g">+680</td><td>2.05%</td><td class="r">1.75%</td><td class="r">-0.30%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge b-blue">无限机兵</span></td>
+                            <td>542,476</td><td>542,840</td><td>543,272</td>
+                            <td class="g">+432</td><td>0.03%</td><td class="g">0.04%</td><td class="g">+0.01%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge b-blue">咖啡星矿工</span></td>
+                            <td>137,063</td><td>137,590</td><td>137,713</td>
+                            <td class="g">+123</td><td>0.19%</td><td class="r">0.04%</td><td class="r">-0.15%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge b-green">卡牌修仙传</span></td>
+                            <td>16,360</td><td>16,370</td><td>16,388</td>
+                            <td class="g">+18</td><td>0.03%</td><td class="g">0.05%</td><td class="g">+0.02%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge b-red">星火燎原</span></td>
+                            <td>5,951</td><td>6,088</td><td>6,099</td>
+                            <td class="g">+11</td><td>1.14%</td><td class="r">0.09%</td><td class="r">-1.05%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge b-gold">小熊牌屋</span></td>
+                            <td>1,251</td><td>1,251</td><td>1,261</td>
+                            <td class="g">+10</td><td>0.00%</td><td class="g">0.40%</td><td class="g">+0.40%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge b-blue">OPUS：心相吾山</span></td>
+                            <td>42,668</td><td>42,675</td><td>42,682</td>
+                            <td class="g">+7</td><td>0.01%</td><td>0.01%</td><td>-0.00%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge b-purple">深狱</span></td>
+                            <td>812</td><td>815</td><td>817</td>
+                            <td class="g">+2</td><td>0.18%</td><td class="r">0.12%</td><td class="r">-0.06%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge b-green">天选花园</span></td>
+                            <td>2,798</td><td>2,798</td><td>2,799</td>
+                            <td class="g">+1</td><td>0.00%</td><td class="g">0.02%</td><td class="g">+0.02%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge b-blue">别拽了！烤串师傅</span></td>
+                            <td>17,048</td><td>17,048</td><td>17,049</td>
+                            <td class="g">+1</td><td>0.00%</td><td>0.00%</td><td>0.00%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge b-gray">幼犬皮皮</span></td>
+                            <td>728</td><td>728</td><td>728</td>
+                            <td>0</td><td>0.00%</td><td>0.00%</td><td>0.00%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge b-gray">黑水浮屠</span></td>
+                            <td>4,137</td><td>4,137</td><td>4,137</td>
+                            <td>0</td><td>0.00%</td><td>0.00%</td><td>0.00%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge b-gray">风水喵将</span></td>
+                            <td>7,142</td><td>7,142</td><td>7,142</td>
+                            <td>0</td><td>0.00%</td><td>0.00%</td><td>0.00%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Chart 3: 销量增量 -->
+        <div class="chart-wrap">
+            <div class="chart-title"><strong>展会期销量增量 TOP6</strong>（已发售游戏）</div>
+            <canvas id="growthChartSold" height="160"></canvas>
+        </div>
+    </div>
+
+    <!-- ── Footer ── -->
+    <div class="footer">
+        <p>BGM 2026广州站 · 独立游戏展会效应分析报告</p>
+        <p>数据来源：Steam愿望单/销量监测 &nbsp;·&nbsp; 分析周期：2026年4月15日–19日</p>
+    </div>
+
+</div>
+
+<script>
+    Chart.defaults.color = '#6b6560';
+    Chart.defaults.font.family = '"Noto Sans SC", "PingFang SC", sans-serif';
+
+    const C = {
+        gold: '#a8793a',
+        goldA: 'rgba(168,121,58,0.12)',
+        green: '#16a34a',
+        greenA: 'rgba(22,163,74,0.12)',
+        blue: '#2563eb',
+        blueA: 'rgba(37,99,235,0.12)',
+        red: '#dc2626',
+        border: 'rgba(0,0,0,0.08)',
+        grid: 'rgba(0,0,0,0.05)'
+    };
+
+    // ── 未发售效应 TOP10（双Y轴）──
+    const unsold = [
+        { name: '深度求财', wishlist: 80, effect: 13.63 },
+        { name: '边界Lines', wishlist: 288, effect: 4.45 },
+        { name: '仙骰诡道', wishlist: 176, effect: 4.05 },
+        { name: '地心工业线', wishlist: 18725, effect: 2.48 },
+        { name: '键盘农场', wishlist: 1064, effect: 2.18 },
+        { name: '科恩1939', wishlist: 2593, effect: 1.91 },
+        { name: '孟婆靓汤', wishlist: 668, effect: 1.24 },
+        { name: '中国式地雷女', wishlist: 3983, effect: 0.89 },
+        { name: '后室迷失', wishlist: 3255, effect: 0.46 },
+        { name: '银翼喵侍', wishlist: 2280, effect: 0.44 }
+    ];
+
+    new Chart(document.getElementById('effectChartUnsold'), {
+        type: 'bar',
+        data: {
+            labels: unsold.map(g => g.name),
+            datasets: [
+                {
+                    label: '4.19愿望单',
+                    data: unsold.map(g => g.wishlist),
+                    backgroundColor: C.blueA,
+                    borderColor: C.blue,
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    yAxisID: 'y',
+                    order: 2
+                },
+                {
+                    label: '展会带动效应(%)',
+                    data: unsold.map(g => g.effect),
+                    type: 'line',
+                    borderColor: C.green,
+                    backgroundColor: C.greenA,
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointBackgroundColor: C.green,
+                    tension: 0.35,
+                    fill: true,
+                    yAxisID: 'y1',
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top', labels: { color: '#6b6560', font: { size: 11 }, boxWidth: 12 } },
+                tooltip: {
+                    backgroundColor: '#fff',
+                    titleColor: '#1a1814',
+                    bodyColor: '#6b6560',
+                    borderColor: C.border,
+                    borderWidth: 1,
+                    callbacks: {
+                        label: ctx => ctx.datasetIndex === 0
+                            ? '愿望单: ' + ctx.raw.toLocaleString()
+                            : '效应: +' + ctx.raw.toFixed(2) + '%'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    position: 'left',
+                    beginAtZero: true,
+                    grid: { color: C.grid },
+                    border: { color: 'transparent' },
+                    ticks: { color: C.blue, callback: v => v.toLocaleString(), font: { size: 10 } }
+                },
+                y1: {
+                    position: 'right',
+                    beginAtZero: true,
+                    grid: { display: false },
+                    border: { color: 'transparent' },
+                    ticks: { color: C.green, callback: v => v.toFixed(1) + '%', font: { size: 10 } }
+                },
+                x: {
+                    grid: { display: false },
+                    border: { color: 'transparent' },
+                    ticks: { color: '#6b6560', font: { size: 10 }, maxRotation: 0 }
+                }
+            }
+        }
+    });
+
+    // ── 已发售效应 ──
+    new Chart(document.getElementById('effectChartSold'), {
+        type: 'bar',
+        data: {
+            labels: ['小熊牌屋', '卡牌修仙传', '天选花园', '无限机兵', '别拽了！烤串', '深狱', '咖啡星矿工', '颈椎病', '星火燎原'],
+            datasets: [{
+                label: '展会带动效应(%)',
+                data: [0.40, 0.02, 0.02, 0.01, 0.00, -0.06, -0.15, -0.30, -1.05],
+                backgroundColor: ctx => ctx.raw >= 0.005 ? C.greenA : ctx.raw < -0.01 ? 'rgba(220,38,38,0.10)' : 'rgba(0,0,0,0.05)',
+                borderColor: ctx => ctx.raw >= 0.005 ? C.green : ctx.raw < -0.01 ? C.red : '#ccc',
+                borderWidth: 1,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#fff',
+                    titleColor: '#1a1814',
+                    bodyColor: '#6b6560',
+                    borderColor: C.border,
+                    borderWidth: 1,
+                    callbacks: {
+                        label: ctx => '效应: ' + (ctx.raw >= 0 ? '+' : '') + ctx.raw.toFixed(2) + '%'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    grid: { color: C.grid },
+                    border: { color: 'transparent' },
+                    ticks: { color: '#6b6560', callback: v => v.toFixed(2) + '%', font: { size: 10 } }
+                },
+                x: {
+                    grid: { display: false },
+                    border: { color: 'transparent' },
+                    ticks: { color: '#6b6560', font: { size: 9 }, maxRotation: 0 }
+                }
+            }
+        }
+    });
+
+    // ── 销量增量 ──
+    new Chart(document.getElementById('growthChartSold'), {
+        type: 'bar',
+        data: {
+            labels: ['颈椎病', '无限机兵', '咖啡星矿工', '卡牌修仙传', '星火燎原', '小熊牌屋'],
+            datasets: [{
+                label: '销量增长',
+                data: [680, 432, 123, 18, 11, 10],
+                backgroundColor: C.greenA,
+                borderColor: C.green,
+                borderWidth: 1,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#fff',
+                    titleColor: '#1a1814',
+                    bodyColor: '#6b6560',
+                    borderColor: C.border,
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: C.grid },
+                    border: { color: 'transparent' },
+                    ticks: { color: '#6b6560', font: { size: 10 } }
+                },
+                x: {
+                    grid: { display: false },
+                    border: { color: 'transparent' },
+                    ticks: { color: '#6b6560', font: { size: 10 } }
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>
